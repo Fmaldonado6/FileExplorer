@@ -119,7 +119,7 @@
           *matRowDef="let row; columns: displayedColumns; let i = index"
           [ngClass]="{ 'row-selected': isRowSelected(row.id) }"
           (click)="onRowSelected(row, i)"
-          class="relative hover:hover-bg cursor-pointer transition-colors"
+          class="content-row"
         ></tr>
       </table>
 

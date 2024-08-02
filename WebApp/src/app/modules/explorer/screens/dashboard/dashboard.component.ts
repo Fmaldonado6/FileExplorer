@@ -17,12 +17,14 @@ import { forkJoin, lastValueFrom } from 'rxjs';
 import { ValidateMediaFile } from 'src/app/shared/utils/file.utils';
 import { LoadingSnackbarComponent } from './components/loading-snackbar/loading-snackbar.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { MatMenuModule } from '@angular/material/menu';
 import { EmptyMessageComponent } from 'src/app/shared/components/empty-message/empty-message.component';
 import { FolderTreeComponent } from './components/folder-tree/folder-tree.component';
 import { FolderNameDialogComponent } from './components/folder-name-dialog/folder-name-dialog.component';
 import { ActionsMenuComponent } from "./components/actions-menu/actions-menu.component";
+import { environment } from 'src/environments/environment';
+
 
 @Component({
   selector: 'app-dashboard',
@@ -54,8 +56,11 @@ export class DashboardComponent implements OnInit {
   mapper = inject(MappingProfile)
   snackBar = inject(MatSnackBar)
   dialog = inject(MatDialog)
+  document = inject(DOCUMENT)
 
-
+  //Stack de navegación de folder, se encarga de saber cuales folder has visitado
+  //En este codigo se agregó una extention function llamada 'peek' para obtener el ultimo elemento del stack sin eliminarlo
+  //Por cosas de angular la definicion de esta funcion se encuentra dentro de main.ts
   folderStack: MediaFolder[] = []
   currentFolderName: string = "Inicio"
 
@@ -63,8 +68,6 @@ export class DashboardComponent implements OnInit {
   imageCount = 0;
   videoCount = 0;
   fileCount = 0;
-
-  totalMediasInFolder = 0
 
   items: MediaResource[] = []
   dataSource = new MatTableDataSource<MediaResource>();
@@ -75,22 +78,16 @@ export class DashboardComponent implements OnInit {
   selectMultiple: SelectMultipleTypes = SelectMultipleTypes.disabled
   filesToMove: MediaResource[] = []
 
-  draggingOver?: MediaResource
-
   displayedColumns = ["name", "lastModified", "more"]
-
-  tablePageOptions: number[] = [5, 10, 20];
-  tablePageSize = 5
-  tablePageIndex = 0
-
-  DateUtils = DateUtils
 
   dragType = DragTypes.none
   DragTypes = DragTypes
-
+  
   isDraggingFiles = false
-
-  MediaResourceType = MediaResourceType
+  
+  //Estas propiedades se utilizan para poder acceder a las funciones estaticas de estas clases
+  //Son clases de ayuda para tener todo un poco mas organizado
+  DateUtils = DateUtils
   MediaResourceTypeUtils = MediaResourceTypeUtils
 
   constructor() { }
@@ -98,12 +95,13 @@ export class DashboardComponent implements OnInit {
   ngOnInit() {
     this.getInitialData();
 
+    //Esto es para que no se sleccione el texto de la tabla cuando pulsas Shift o Control
+    this.document.onselectstart = () => {
+      return !this.selectMultiple;
+    }
 
   }
-
-
   async getInitialData() {
-
     await this.getTotalMediaCount();
     this.initialStatus = Status.loaded
     this.getMediaInFolder();
@@ -116,7 +114,6 @@ export class DashboardComponent implements OnInit {
 
   cancelMove() {
     this.filesToMove = []
-
   }
 
   moveFilesHere() {
@@ -154,7 +151,7 @@ export class DashboardComponent implements OnInit {
 
   }
 
-
+  //Se obtiene el conteo de datos
   async getTotalMediaCount() {
     try {
       const requests = forkJoin([
@@ -174,14 +171,15 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  //Se obtiene las imagenes dentro del folder
   async getMediaInFolder(folder?: MediaFolder) {
     this.selectedRows.clear()
 
+    //Se busca en el stack de navegacion si el folder se encuentra y se eliminan los elementos despues de este
     const isInStack = this.folderStack.find(e => e.id == folder?.id)
     while (isInStack || folder == null) {
       const currentFolder = this.folderStack.pop();
       if (currentFolder == null || currentFolder.id == folder?.id) break;
-
     }
 
     if (folder != null) this.folderStack.push(folder)
@@ -190,10 +188,13 @@ export class DashboardComponent implements OnInit {
 
     this.mediaService.getMediaInFolder(folder?.id).subscribe({
       next: (value) => {
+
         const folders = this.mapper.mapMediaArrayToResource(value.folders)
         const medias = this.mapper.mapMediaArrayToResource(value.medias)
+
         this.items = [...folders, ...medias]
         this.dataSource = new MatTableDataSource(this.items)
+
         if (this.items.length == 0) {
           this.mediaStatus = Status.empty
           return;
@@ -207,6 +208,10 @@ export class DashboardComponent implements OnInit {
       }
     })
 
+  }
+
+  openFile(media: MediaResource) {
+    window.open(environment.backEnd.mediaPath + media.fileName, "_blank");
   }
 
   async addFolder(name: string) {
@@ -263,10 +268,14 @@ export class DashboardComponent implements OnInit {
   touchtime = 0
 
   onRowClicked(row: MediaResource) {
-    if (row.resourceType == MediaResourceType.folder && !this.filesToMove.find(e => e.id == row.id))
+    if (row.resourceType == MediaResourceType.folder
+      && !this.filesToMove.find(e => e.id == row.id))
       this.getMediaInFolder(row)
+    else
+      this.openFile(row)
   }
 
+  //Se selecciona la fila y se detecta si se hizo un doble clic para acceder al folder o abrir el archivo
   onRowSelected(row: MediaResource, index: number) {
     const now = new Date().getTime();
     const touchTimeDifference = now - this.touchtime;
@@ -278,6 +287,7 @@ export class DashboardComponent implements OnInit {
       this.selectedRows.set(row.id!, row)
     }
 
+    //Si estamos presionando shift se selecciona el rango del ultimo elemento seleccionado y el que acabamos de seleccionar
     if (this.selectMultiple == SelectMultipleTypes.range) {
 
       const selectedIndex = this.lastSelectedIndex ?? index
@@ -291,6 +301,7 @@ export class DashboardComponent implements OnInit {
 
     }
 
+    //Si estamos presionando contro se selecciona individualmente el elemento
     if (this.selectMultiple == SelectMultipleTypes.individual) {
 
       if (this.selectedRows.has(row.id!))
@@ -403,13 +414,8 @@ export class DashboardComponent implements OnInit {
   }
 
 
-  getLastModified(date: Date) {
-    date = new Date(date)
-    return date.toLocaleString()
-  }
 
-
-
+  //Detecta eventos en el teclado para seleccionar en rango o individualmente
   @HostListener('window:keydown', ['$event'])
   onKeyDown(e: any) {
     if (e.key == 'Shift') this.selectMultiple = SelectMultipleTypes.range

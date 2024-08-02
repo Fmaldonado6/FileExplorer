@@ -7,6 +7,7 @@ export const environment = {
   environmentName: "Development",
   backEnd: {
     baseUrl: "http://localhost:5001",
+    mediaPath:"http://localhost:5001/StaticFiles/Media/"
   },
   frontEnd: {
     baseUrl: "http://localhost:4200",
