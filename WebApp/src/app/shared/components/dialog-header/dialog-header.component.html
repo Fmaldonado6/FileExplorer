@@ -1,0 +1,26 @@
+<div class="title flex flex-row items-start">
+  <button
+    *ngIf="showBackButton()"
+    (click)="backClicked()"
+    class="mr-1 w-[35px] h-[35px] p-0 flex items-center justify-center"
+    mat-icon-button
+  >
+    <mat-icon class="secondary-text-color-text">chevron_left</mat-icon>
+  </button>
+
+  <div class="title-container flex flex-col mr-2">
+    <h1 class="mb-1 text-3xl font-semibold">{{ title() }}</h1>
+    <span class="secondary-text-color-text text-[14px]">
+      {{ subtitle() }}
+    </span>
+  </div>
+
+  <button
+    *ngIf="showCloseButton()"
+    (click)="closeClicked()"
+    class="ml-auto w-[35px] h-[35px] p-0 flex items-center justify-center"
+    mat-icon-button
+  >
+    <mat-icon class="secondary-text-color-text">close</mat-icon>
+  </button>
+</div>

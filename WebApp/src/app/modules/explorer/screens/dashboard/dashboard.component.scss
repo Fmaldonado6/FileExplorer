@@ -1,0 +1,159 @@
+.title {
+  display: block;
+  h1 {
+    font-size: 2rem;
+    line-height: 1.25;
+    margin-bottom: 0 !important;
+  }
+
+  h4 {
+    font-size: 1rem;
+    color: gray;
+    margin-top: 0;
+    font-weight: 500;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.container {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+}
+
+#summaries {
+  display: grid;
+  grid: minmax(0, 1fr) / repeat(4, minmax(0, 1fr));
+  column-gap: 3.5rem;
+}
+
+@media (max-width: 1500px) {
+  #summaries {
+    grid: minmax(0, 1fr) / repeat(3, minmax(0, 1fr));
+    row-gap: 0.75rem !important;
+  }
+}
+
+@media (max-width: 1000px) {
+  #summaries {
+    grid: minmax(0, 1fr) / repeat(2, minmax(0, 1fr));
+    row-gap: 0.75rem !important;
+  }
+}
+
+@media (max-width: 639px) {
+  #summaries {
+    grid: repeat(1, minmax(0, 1fr)) / minmax(0, 1fr);
+    grid-auto-flow: row;
+  }
+}
+
+.drag-drop {
+  position: relative;
+  &::after {
+    transition: all 100ms ease;
+    content: "";
+    background-color: transparent;
+    border: 0px;
+    opacity: 0.3;
+    position: absolute;
+    width: calc(100% - 6px);
+    height: calc(100% - 6px);
+    top: 0;
+    left: 0;
+    z-index: -1;
+    border-radius: 10px;
+  }
+}
+
+.drag-container {
+  &::after {
+    content: "";
+    background-color: rgb(139, 139, 213);
+    z-index: 999;
+    border: 3px solid;
+    border-color:rgb(89, 89, 159);
+  }
+}
+
+table tbody > * {
+  pointer-events: none;
+}
+
+table {
+  background-color: transparent;
+  th {
+    border-color: rgb(218, 218, 218);
+    color: gray;
+  }
+  td{
+    border-color: rgb(218, 218, 218);
+
+  }
+}
+
+.more-cell{
+  width: 72px;
+  background-color: white;
+}
+
+.table-responsive {
+  display: block;
+  overflow-x: auto;
+  .mat-table {
+    width: 100%;
+    max-width: 100%;
+    display: table;
+    border-collapse: collapse;
+  }
+  .mat-row,
+  .mat-header-row {
+    display: table-row;
+    height: 60px;
+    padding-right: 50px;
+  }
+  .mat-cell,
+  .mat-header-cell {
+    word-wrap: initial;
+    display: table-cell;
+    line-break: unset;
+    width: auto;
+    padding: 0px 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    vertical-align: middle;
+  }
+}
+
+.file-explorer {
+  margin-top: 1.5rem;
+  border-radius: 10px;
+  padding: 10px;
+  height: 100%;
+}
+
+
+.empty {
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.name-container{
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.row-selected{
+
+  background-color: rgb(212, 212, 212);
+}

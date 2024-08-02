@@ -1,0 +1,23 @@
+<div class="actions">
+  @if (filesToMove().length > 0) {
+    <div class="selected-options">
+      <span> Mover archivos: {{ filesToMove().length }} </span>
+
+      <button matTooltip="Mover Aquí" mat-icon-button (click)="moveFilesConfirm()">
+        <mat-icon> done </mat-icon>
+      </button>
+
+      <button matTooltip="Cancelar" mat-icon-button (click)="cancelMove()">
+        <mat-icon> close </mat-icon>
+      </button>
+    </div>
+  } @else if (selectedRows()!.size > 0) {
+    <div class="selected-options">
+      <span> Seleccionados: {{ selectedRows()!.size }} </span>
+
+      <button matTooltip="Mover" mat-icon-button (click)="moveFilesClicked()">
+        <mat-icon> drive_file_move </mat-icon>
+      </button>
+    </div>
+  }
+</div>

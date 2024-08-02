@@ -1,0 +1,29 @@
+<mat-dialog-content>
+  <dialog-header
+    title="Crear folder"
+    subtitle="Ingresa el nombre del folder nuevo"
+    (onCloseClicked)="close()"
+  ></dialog-header>
+
+  <form (ngSubmit)="create()">
+    <div class="form-container ">
+      <mat-form-field appearance="outline">
+        <mat-label>Nombre</mat-label>
+        <input #nameInput name="folderName" [(ngModel)]="folderName" matInput />
+      </mat-form-field>
+    </div>
+
+    <mat-dialog-actions align="end">
+      <button type="button" (click)="close()" mat-stroked-button>
+        Cancelar
+      </button>
+      <button
+        [disabled]="folderName == null || folderName == ''"
+        mat-raised-button
+        color="primary"
+      >
+        Crear
+      </button>
+    </mat-dialog-actions>
+  </form>
+</mat-dialog-content>

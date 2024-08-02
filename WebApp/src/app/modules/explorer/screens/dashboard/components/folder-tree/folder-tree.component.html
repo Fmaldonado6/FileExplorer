@@ -1,0 +1,68 @@
+<div class="current-folder flex items-center gap-1 mb-3 flex-1 max-w-1/2">
+  @if (folderStack.length > 2) {
+    <button
+      [matMenuTriggerFor]="folderMenu"
+      class="secondary-text-color-text"
+      mat-icon-button
+    >
+      <mat-icon>more_horiz</mat-icon>
+    </button>
+    <mat-icon class="secondary-text-color-text"> chevron_right </mat-icon>
+    <button
+      class="flex-shrink truncate block"
+      (click)="folderClicked()"
+      mat-button
+    >
+      <span class="text-3xl px-1 w-full truncate">
+        {{ currentFolderName() }}
+      </span>
+    </button>
+  } @else {
+    <button
+      class="flex-shrink truncate block"
+      (click)="folderClicked()"
+      mat-button
+    >
+      <span
+        [ngClass]="{
+          'secondary-text-color-text': folderStack.length > 0,
+        }"
+        class="text-3xl px-1 w-full truncate"
+      >
+        Inicio
+      </span>
+    </button>
+
+    @for (item of folderStack(); track $index) {
+      <mat-icon class="secondary-text-color-text"> chevron_right </mat-icon>
+      <button
+        class="flex-shrink truncate block"
+        (click)="folderClicked(item)"
+        mat-button
+      >
+        <span
+          [ngClass]="{
+            'secondary-text-color-text': item.name != currentFolderName(),
+          }"
+          class="text-3xl px-1 w-full truncate"
+        >
+          {{ item.name }}
+        </span>
+      </button>
+    }
+  }
+</div>
+
+<mat-menu #folderMenu="matMenu">
+  <button (click)="folderClicked()" mat-menu-item>
+    <mat-icon class="secondary-text-color-text">folder</mat-icon>
+    Inicio
+  </button>
+  @for (item of getFolderTree(); track $index) {
+    <button (click)="folderClicked(item)" mat-menu-item>
+      <mat-icon class="secondary-text-color-text"> folder </mat-icon>
+
+      {{ item.name }}
+    </button>
+  }
+</mat-menu>
